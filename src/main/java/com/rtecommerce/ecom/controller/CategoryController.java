@@ -3,10 +3,10 @@ package com.rtecommerce.ecom.controller;
 import com.rtecommerce.ecom.model.Category;
 import com.rtecommerce.ecom.service.CategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -17,14 +17,25 @@ public class CategoryController {
     CategoryService categoryService;
 
     @GetMapping("/api/public/categories")
-    public List<Category> getCategories() {
-        return categoryService.getCategories();
+    public ResponseEntity<List<Category>> getCategories() {
+        return new ResponseEntity<>(categoryService.getCategories(), HttpStatus.OK);
     }
 
     @PostMapping("/api/public/categories")
-    public String createCategories(@RequestBody Category category){
+    public ResponseEntity<String> createCategories(@RequestBody Category category){
         categoryService.createCategory(category );
-        return "Category Added Successfully!!";
+        return new ResponseEntity<>("Category Added Successfully!!", HttpStatus.CREATED);
+    }
+
+    @DeleteMapping("/api/admin/categories/{categoryId}")
+    public ResponseEntity<String> deleteCategory(@PathVariable Long categoryId){
+        try {
+            String status = categoryService.deleteCategory(categoryId);
+            return new ResponseEntity<>(status, HttpStatus.OK);
+        }
+        catch (ResponseStatusException e){
+            return new ResponseEntity<>(e.getReason(), e.getStatusCode());
+        }
     }
 
 
